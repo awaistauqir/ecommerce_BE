@@ -1,0 +1,39 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin:
+      0; padding: 20px; color: #333333; } .container { background-color:
+      #ffffff; padding: 20px; margin: 0 auto; width: 100%; max-width: 600px;
+      border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); } .header {
+      text-align: center; padding-bottom: 20px; border-bottom: 1px solid
+      #dddddd; } .header h1 { margin: 0; color: #333333; } .content { padding:
+      20px 0; text-align: center; } .content p { font-size: 16px; line-height:
+      1.5; margin-bottom: 20px; } .button { display: inline-block; padding: 12px
+      24px; font-size: 16px; color: #ffffff; background-color: #007bff;
+      border-radius: 5px; text-decoration: none; } .footer { text-align: center;
+      padding-top: 20px; border-top: 1px solid #dddddd; font-size: 12px; color:
+      #aaaaaa; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Email Verification</h1>
+      </div>
+      <div class="content">
+        <p>Hello {{name}},</p>
+        <p>Thank you for registering with us! Please click the button below to
+          verify your email address and complete your registration.</p>
+        <a href="{{verificationLink}}" target="_blank" class="button">Verify
+          Email</a>
+      </div>
+      <div class="footer">
+        <p>If you did not create an account with us, please ignore this email.</p>
+        <p>© 2024 Your Company Name. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
