@@ -1,5 +1,9 @@
-import { PrismaClient } from "@prisma/client";
-import { ResetPasswordSchema, SignupSchema } from "../ZodSchemas/auth.schema";
+import { PrismaClient, User } from "@prisma/client";
+import {
+  ChangePasswordSchema,
+  ResetPasswordSchema,
+  SignupSchema,
+} from "../ZodSchemas/auth.schema";
 import {
   BadRequestError,
   DuplicateEntityError,
@@ -293,8 +297,41 @@ export async function resetPassword(body: ResetPasswordSchema) {
     data: {
       password: hashedPassword,
       passwordResetToken: null,
+      passwordChangedAt: new Date(Date.now()),
     },
   });
 
   return user;
+}
+
+export async function changePassword(body: ChangePasswordSchema, user: User) {
+  // 1. Check if the old password is correct
+  const passwordMatch = await compare(body.oldPassword, user.password);
+  if (!passwordMatch) {
+    throw new UnauthorizedError("Invalid password");
+  }
+
+  // 2. Validate new password
+  if (body.oldPassword === body.newPassword) {
+    throw new BadRequestError(
+      "New password must be different from the old one"
+    );
+  }
+  if (body.newPassword !== body.confirmPassword) {
+    throw new BadRequestError("Passwords do not match");
+  }
+
+  // 3. Hash the new password
+  const hashedPassword = await hash(body.newPassword, 10);
+
+  // 4. Update the user's password
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: hashedPassword,
+      passwordChangedAt: new Date(),
+    },
+  });
+
+  return updatedUser;
 }

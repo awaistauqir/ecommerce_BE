@@ -1,3 +1,4 @@
+import e from "express";
 import { z } from "zod";
 export const signupSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -29,7 +30,7 @@ export const forgotPasswordSchema = z.object({
 });
 export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
 
-export const resetPasswordScema = z
+export const resetPasswordSchema = z
   .object({
     password: z.string().min(8, "Password must be at least 8 characters long"),
 
@@ -41,4 +42,20 @@ export const resetPasswordScema = z
     path: ["confirmPassword"], // The error will be shown on the confirmPassword field
   });
 
-export type ResetPasswordSchema = z.infer<typeof resetPasswordScema>;
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    oldPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters long"),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.oldPassword === data.newPassword, {
+    message: "Passwords do not match",
+    path: ["newPassword"], // The error will be shown on the confirmPassword field
+  });
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;

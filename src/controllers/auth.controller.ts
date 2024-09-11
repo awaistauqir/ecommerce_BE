@@ -5,12 +5,13 @@ import {
   resetPassword,
   signUp,
   verifyUser,
+  changePassword,
 } from "../services/auth.service";
 import {
+  changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
-  resetPasswordScema,
-  ResetPasswordSchema,
+  resetPasswordSchema,
   signupSchema,
   verifyEmailSchema,
 } from "../ZodSchemas/auth.schema";
@@ -81,10 +82,31 @@ export async function resetPasswordController(
   next: NextFunction
 ) {
   try {
-    const body = resetPasswordScema.parse(req.body);
+    const body = resetPasswordSchema.parse(req.body);
     // Reset password logic
     await resetPassword(body);
     return res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    next(error);
+  }
+}
+export async function changePasswordController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const validatedBody = changePasswordSchema.parse(req.body);
+    // Change password logic
+    const response = await changePassword(validatedBody, req.user!);
+    res.status(200).json({
+      message: "Password changed successfully",
+      user: {
+        id: response.id,
+        email: response.email,
+        name: response.name,
+      },
+    });
   } catch (error) {
     next(error);
   }

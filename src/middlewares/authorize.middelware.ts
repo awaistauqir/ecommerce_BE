@@ -1,29 +1,37 @@
 import { Request, Response, NextFunction } from "express";
 import { ForbiddenError } from "../errors/CustomError";
-import { User } from "@prisma/client";
 
-// Middleware to check user roles
+// Define a type for the role object
+type Role = string | { name: string };
+
+// Extend the Express Request type to include the user property
+
 export const authorizeRoles = (...allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user;
-
-      if (!user || !user.roles) {
-        throw new ForbiddenError("Access denied. No roles found.");
+      if (!user) {
+        throw new ForbiddenError("Access denied. User not found.");
       }
 
-      // Check if the user's roles include one of the allowed roles
-      const hasRole = user.roles.some((role: { name: string }) =>
-        allowedRoles.includes(role.name)
+      const userRoles = user.roles.map((role: Role) =>
+        typeof role === "string" ? role.toLowerCase() : role.name.toLowerCase()
+      );
+      const normalizedAllowedRoles = allowedRoles.map((role) =>
+        role.toLowerCase()
+      );
+
+      const hasRole = userRoles.some((role) =>
+        normalizedAllowedRoles.includes(role)
       );
 
       if (!hasRole) {
         throw new ForbiddenError("Access denied. Insufficient permissions.");
       }
 
-      next(); // User is authorized, proceed to the next middleware
+      next();
     } catch (error) {
-      next(error); // Handle any errors
+      next(error);
     }
   };
 };
