@@ -25,7 +25,6 @@ export const getAllProductsController = async (
 ) => {
   try {
     const validatedQuery = productPaginationSchema.parse(req.query);
-    console.log(validatedQuery);
     const products = await getAllProducts(validatedQuery);
     res.status(200).json(products);
   } catch (error) {

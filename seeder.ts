@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -26,7 +27,7 @@ async function main() {
       isEmailVerified: true,
       isActive: true,
       phone: "+923161689694",
-      password: "securepassword", // Consider hashing this in a real app
+      password: await hash("awais1122", 10), // Consider hashing this in a real app
       roles: {
         connect: { id: adminRole.id },
       },

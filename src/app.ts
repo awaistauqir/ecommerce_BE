@@ -4,6 +4,7 @@ import productsRouter from "./routers/product.router";
 import { errorHandler } from "./middlewares/errorHandler";
 import productCategoryRouter from "./routers/productCategory.router";
 import authRouter from "./routers/auth.router";
+import cartRouter from "./routers/shppingSession.router";
 
 dotenv.config();
 
@@ -13,9 +14,10 @@ const app: Application = express();
 app.use(express.json());
 
 // Routes
+app.use("/auth", authRouter);
 app.use("/products", productsRouter);
 app.use("/categories", productCategoryRouter);
-app.use("/auth", authRouter);
+app.use("/cart", cartRouter);
 app.get("/", (req, res) => {
   res.send("E-commerce Backend is running!");
 });

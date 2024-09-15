@@ -15,6 +15,8 @@ import {
   signupSchema,
   verifyEmailSchema,
 } from "../ZodSchemas/auth.schema";
+import { ZodError } from "zod";
+import { BadRequestError } from "../errors/CustomError";
 
 export async function signupController(
   req: Request,
@@ -58,7 +60,9 @@ export async function loginController(
     const user = await login(validatedBody.email, validatedBody.password);
     return res.status(200).json({ message: "Login successfull", ...user });
   } catch (error) {
-    next(error);
+    if (error instanceof ZodError) {
+      next(new BadRequestError("Invalid data", error.errors));
+    } else next(error);
   }
 }
 
@@ -73,7 +77,9 @@ export async function forgotPasswordController(
     await forgotPassword(body.email);
     return res.status(200).json({ message: "Password reset link sent" });
   } catch (error) {
-    next(error);
+    if (error instanceof ZodError) {
+      next(new BadRequestError("Invalid data", error.errors));
+    } else next(error);
   }
 }
 export async function resetPasswordController(
@@ -87,7 +93,9 @@ export async function resetPasswordController(
     await resetPassword(body);
     return res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
-    next(error);
+    if (error instanceof ZodError) {
+      next(new BadRequestError("Invalid data", error.errors));
+    } else next(error);
   }
 }
 export async function changePasswordController(
@@ -108,6 +116,8 @@ export async function changePasswordController(
       },
     });
   } catch (error) {
-    next(error);
+    if (error instanceof ZodError) {
+      next(new BadRequestError("Invalid data", error.errors));
+    } else next(error);
   }
 }

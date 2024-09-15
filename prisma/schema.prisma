@@ -12,7 +12,7 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-// prisma/schema.prisma
+// Models
 model ProductCategory {
   id          String    @id @default(uuid())
   name        String    @unique
@@ -21,9 +21,8 @@ model ProductCategory {
   modifiedAt  DateTime  @updatedAt
   deletedAt   DateTime?
   products    Product[] @relation("ProductToCategory")
-
- 
 }
+
 model Product {
   id          String           @id @default(uuid())
   name        String
@@ -33,31 +32,115 @@ model Product {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   deletedAt   DateTime?
-  categoryId  String           // Non-nullable field
+  categoryId  String
   category    ProductCategory  @relation("ProductToCategory", fields: [categoryId], references: [id])
-  createdById String           // Non-nullable field
-  createdBy   User             @relation(fields: [createdById], references: [id])
+  createdById String
+  createdBy   User             @relation("UserProducts", fields: [createdById], references: [id])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
 }
-model User{
-  id          String    @id @default(uuid())
-  name        String
-  email       String    @unique
-  phone String @unique
-  password    String
-  isEmailVerified Boolean @default(false)
-  isActive Boolean @default(false)
-  verificationToken String?
-  passwordResetToken String?
+
+model User {
+  id                          String    @id @default(uuid())
+  name                        String
+  email                       String    @unique
+  phone                       String    @unique
+  password                    String
+  isEmailVerified             Boolean   @default(false)
+  isActive                    Boolean   @default(false)
+  verificationToken           String?
+  passwordResetToken          String?
   passwordResetTokenExpiresAt DateTime?
-  passwordChangedAt DateTime?
-  roles       Role[]    @relation("UserRoles") // User has many roles
-  createdAt   DateTime  @default(now())
-  modifiedAt  DateTime  @updatedAt
-  deletedAt   DateTime?
-  Product     Product[]
+  passwordChangedAt           DateTime?
+  roles                       Role[]    @relation("UserRoles")
+  createdAt                   DateTime  @default(now())
+  modifiedAt                  DateTime  @updatedAt
+  deletedAt                   DateTime?
+  products                    Product[] @relation("UserProducts")
+  shoppingSessions            ShoppingSession[]
+  orders                      OrderDetails[]
+  addresses                   UserAddress[]
+  payments                    UserPayment[]
 }
+
 model Role {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  users       User[]    @relation("UserRoles")
+  id    String @id @default(uuid())
+  name  String @unique
+  users User[] @relation("UserRoles")
+}
+
+model ShoppingSession {
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cartItems CartItem[]
+}
+
+model CartItem {
+  id        String          @id @default(uuid())
+  sessionId String
+  session   ShoppingSession @relation(fields: [sessionId], references: [id])
+  productId String
+  product   Product         @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model OrderDetails {
+  id         String          @id @default(uuid())
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+  total      Float
+  paymentId  String?         @unique
+  payment    PaymentDetails? @relation(fields: [paymentId], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id        String       @id @default(uuid())
+  orderId   String
+  order     OrderDetails @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product      @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model PaymentDetails {
+  id        String        @id @default(uuid())
+  order     OrderDetails?
+  amount    Float
+  provider  String
+  status    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model UserAddress {
+  id           String  @id @default(uuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  postalCode   String
+  country      String
+  telephone    String?
+  mobile       String?
+}
+
+model UserPayment {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  paymentType String
+  provider    String
+  accountNo   String
+  expiry      DateTime
 }

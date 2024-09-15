@@ -54,8 +54,12 @@ export const changePasswordSchema = z
       .min(8, "Password must be at least 8 characters long"),
     confirmPassword: z.string(),
   })
-  .refine((data) => data.oldPassword === data.newPassword, {
+  .refine((data) => data.oldPassword !== data.newPassword, {
     message: "Passwords do not match",
-    path: ["newPassword"], // The error will be shown on the confirmPassword field
+    path: ["confirmPassword"], // The error will be shown on the confirmPassword field
+  })
+  .refine((data) => data.oldPassword !== data.newPassword, {
+    message: "New password must be different from old password",
+    path: ["newPassword"],
   });
 export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;

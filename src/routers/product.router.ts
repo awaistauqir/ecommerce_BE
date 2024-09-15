@@ -15,6 +15,11 @@ productsRouter
   .get("/:id", getProductByIdController)
   .post("/", authMiddleware, authorizeRoles("admin"), createProductController)
   .delete("/:id", deleteProductController)
-  .patch("/:id", updateProductController);
+  .patch(
+    "/:id",
+    authMiddleware,
+    authorizeRoles("admin"),
+    updateProductController
+  );
 
 export default productsRouter;

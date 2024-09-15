@@ -317,9 +317,6 @@ export async function changePassword(body: ChangePasswordSchema, user: User) {
       "New password must be different from the old one"
     );
   }
-  if (body.newPassword !== body.confirmPassword) {
-    throw new BadRequestError("Passwords do not match");
-  }
 
   // 3. Hash the new password
   const hashedPassword = await hash(body.newPassword, 10);
